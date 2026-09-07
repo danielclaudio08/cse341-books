@@ -7,5 +7,5 @@ if (!PORT) {
 }
 
 app.listen(PORT, () => {
-  console.log(`Server listening at http://127.0.0.1:3000 ${PORT}`);
+  console.log(`Server listening at http://127.0.0.1:${PORT}`);
 });
