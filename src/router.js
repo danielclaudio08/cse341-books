@@ -2,7 +2,10 @@ import express from 'express';
 
 import {
   getBooksHandler,
-  getBookByIdHandler
+  getBookByIdHandler,
+  createBookHandler,
+  updateBookHandler,
+  deleteBookHandler
 } from './controllers/books.js';
 
 import {
@@ -53,7 +56,7 @@ router.get('/books', getBooksHandler);
  *       - in: path
  *         name: id
  *         required: true
- *         description: The ID of the book to retrieve
+ *         description: The custom ID of the book to retrieve
  *         schema:
  *           type: string
  *     responses:
@@ -78,6 +81,166 @@ router.get('/books', getBooksHandler);
  */
 router.get('/books/:id', getBookByIdHandler);
 
+
+/**
+ * @openapi
+ * /books:
+ *   post:
+ *     summary: Create a new book
+ *     tags:
+ *       - Books
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - authorId
+ *               - title
+ *               - publicationDate
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Unique custom identifier for the book
+ *               authorId:
+ *                 type: string
+ *                 description: Custom ID of the author referenced by the book
+ *               title:
+ *                 type: string
+ *                 description: Title of the book
+ *               publicationDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Publication date in YYYY-MM-DD format
+ *             example:
+ *               id: b4
+ *               authorId: a1
+ *               title: Example Book Title
+ *               publicationDate: "2026-01-15"
+ *     responses:
+ *       201:
+ *         description: Book created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Missing required field, book ID already exists, or author ID is invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/books', createBookHandler);
+
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   put:
+ *     summary: Update a book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom ID of the book to update
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - authorId
+ *               - title
+ *               - publicationDate
+ *             properties:
+ *               authorId:
+ *                 type: string
+ *                 description: Custom ID of the author referenced by the book
+ *               title:
+ *                 type: string
+ *                 description: Updated title of the book
+ *               publicationDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Updated publication date in YYYY-MM-DD format
+ *             example:
+ *               authorId: a2
+ *               title: Updated Book Title
+ *               publicationDate: "2026-02-20"
+ *     responses:
+ *       200:
+ *         description: Book updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Book'
+ *       400:
+ *         description: Missing required field or author ID is invalid
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Book not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.put('/books/:id', updateBookHandler);
+
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   delete:
+ *     summary: Delete a book
+ *     tags:
+ *       - Books
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom ID of the book to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Book deleted successfully
+ *       404:
+ *         description: Book not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete('/books/:id', deleteBookHandler);
 
 /**
  * @openapi
@@ -318,11 +481,25 @@ router.delete('/authors/:id', deleteAuthor);
  *     Book:
  *       type: object
  *       description: A book document
+ *       required:
+ *         - id
+ *         - authorId
+ *         - title
+ *         - publicationDate
  *       properties:
  *         id:
  *           type: string
- *           description: Unique identifier for the book
- *       additionalProperties: true
+ *           description: Unique custom identifier for the book
+ *         authorId:
+ *           type: string
+ *           description: Custom ID of the author referenced by the book
+ *         title:
+ *           type: string
+ *           description: Title of the book
+ *         publicationDate:
+ *           type: string
+ *           format: date
+ *           description: Publication date in YYYY-MM-DD format
  *
  *     Author:
  *       type: object
