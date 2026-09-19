@@ -1,7 +1,20 @@
 import express from 'express';
-import { getBooksHandler, getBookByIdHandler } from './controllers/books.js';
+
+import {
+  getBooksHandler,
+  getBookByIdHandler
+} from './controllers/books.js';
+
+import {
+  getAllAuthors,
+  getAuthorById,
+  createAuthor,
+  updateAuthor,
+  deleteAuthor
+} from './controllers/authors.js';
 
 const router = express.Router();
+
 
 /**
  * @openapi
@@ -27,6 +40,7 @@ const router = express.Router();
  *               $ref: '#/components/schemas/Error'
  */
 router.get('/books', getBooksHandler);
+
 
 /**
  * @openapi
@@ -64,6 +78,239 @@ router.get('/books', getBooksHandler);
  */
 router.get('/books/:id', getBookByIdHandler);
 
+
+/**
+ * @openapi
+ * /authors:
+ *   get:
+ *     summary: Get all authors
+ *     tags:
+ *       - Authors
+ *     responses:
+ *       200:
+ *         description: A list of authors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Author'
+ *       500:
+ *         description: Unable to retrieve authors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/authors', getAllAuthors);
+
+
+/**
+ * @openapi
+ * /authors/{id}:
+ *   get:
+ *     summary: Get an author by ID
+ *     tags:
+ *       - Authors
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom ID of the author to retrieve
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: The requested author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Author'
+ *       404:
+ *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Unable to retrieve author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.get('/authors/:id', getAuthorById);
+
+
+/**
+ * @openapi
+ * /authors:
+ *   post:
+ *     summary: Create a new author
+ *     tags:
+ *       - Authors
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - id
+ *               - name
+ *               - birthDate
+ *               - biography
+ *             properties:
+ *               id:
+ *                 type: string
+ *                 description: Unique custom identifier for the author
+ *               name:
+ *                 type: string
+ *                 description: Author's name
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Author's birth date in YYYY-MM-DD format
+ *               biography:
+ *                 type: string
+ *                 description: Author's biography
+ *             example:
+ *               id: a4
+ *               name: Example Author
+ *               birthDate: "1985-06-10"
+ *               biography: An example author biography.
+ *     responses:
+ *       201:
+ *         description: Author created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Author'
+ *       400:
+ *         description: Missing required field or author ID already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Unable to create author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.post('/authors', createAuthor);
+
+
+/**
+ * @openapi
+ * /authors/{id}:
+ *   put:
+ *     summary: Update an author
+ *     tags:
+ *       - Authors
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom ID of the author to update
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - birthDate
+ *               - biography
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Updated author name
+ *               birthDate:
+ *                 type: string
+ *                 format: date
+ *                 description: Updated author birth date in YYYY-MM-DD format
+ *               biography:
+ *                 type: string
+ *                 description: Updated author biography
+ *             example:
+ *               name: Updated Author Name
+ *               birthDate: "1985-06-10"
+ *               biography: Updated author biography.
+ *     responses:
+ *       200:
+ *         description: Author updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Author'
+ *       400:
+ *         description: Missing required field
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Unable to update author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.put('/authors/:id', updateAuthor);
+
+
+/**
+ * @openapi
+ * /authors/{id}:
+ *   delete:
+ *     summary: Delete an author
+ *     tags:
+ *       - Authors
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: The custom ID of the author to delete
+ *         schema:
+ *           type: string
+ *     responses:
+ *       204:
+ *         description: Author deleted successfully
+ *       400:
+ *         description: Author cannot be deleted because books reference this author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *             example:
+ *               message: Author cannot be deleted because books reference this author.
+ *       404:
+ *         description: Author not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Unable to delete author
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+router.delete('/authors/:id', deleteAuthor);
+
+
 /**
  * @openapi
  * components:
@@ -76,6 +323,30 @@ router.get('/books/:id', getBookByIdHandler);
  *           type: string
  *           description: Unique identifier for the book
  *       additionalProperties: true
+ *
+ *     Author:
+ *       type: object
+ *       description: An author document
+ *       required:
+ *         - id
+ *         - name
+ *         - birthDate
+ *         - biography
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: Unique custom identifier for the author
+ *         name:
+ *           type: string
+ *           description: Author's name
+ *         birthDate:
+ *           type: string
+ *           format: date
+ *           description: Author's birth date in YYYY-MM-DD format
+ *         biography:
+ *           type: string
+ *           description: Author's biography
+ *
  *     Error:
  *       type: object
  *       required:
